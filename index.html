@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Misbah Teacher — Ustad Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Scheherazade+New:wght@400;700&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FFF7E9; --cream-2:#FFEFD4;
+  --emerald:#0E7C66; --emerald-d:#0A5C4C; --emerald-l:#1AA184;
+  --gold:#E7A928; --gold-l:#F7CE5B;
+  --coral:#FF6F61; --coral-d:#C24A3E;
+  --ink:#25382F; --ink-soft:#5A6B62;
+  --line:#EAD9B4; --white:#fff;
+  --shadow:0 10px 24px rgba(14,124,102,.14);
+  --shadow-sm:0 5px 14px rgba(14,124,102,.12);
+  --radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(circle at 12% 8%,#FFE6B8 0,transparent 40%),
+             radial-gradient(circle at 90% 6%,#CFEDE3 0,transparent 38%),var(--cream);
+  min-height:100dvh;-webkit-user-select:none;user-select:none;}
+.app{max-width:560px;margin:0 auto;min-height:100dvh;position:relative;padding-bottom:82px;}
+.arabic{font-family:'Scheherazade New',serif;direction:rtl;}
+
+/* header */
+.hdr{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;
+  padding:18px 20px 20px;border-radius:0 0 26px 26px;box-shadow:var(--shadow);}
+.hdr h1{margin:0;font-size:1.3rem;font-weight:800;display:flex;align-items:center;gap:8px;}
+.hdr .date{opacity:.9;font-weight:600;font-size:.9rem;margin-top:2px;}
+.hdr .logout{margin-inline-start:auto;background:rgba(255,255,255,.18);border:none;color:#fff;
+  border-radius:12px;padding:7px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer;}
+.stat-row{display:flex;gap:10px;margin-top:14px;}
+.stat{background:rgba(255,255,255,.16);border-radius:16px;padding:10px 14px;flex:1;text-align:center;}
+.stat b{display:block;font-size:1.4rem;}
+.stat span{font-size:.72rem;opacity:.9;font-weight:600;}
+
+.screen{display:none;padding:16px;}
+.screen.active{display:block;}
+.section-title{font-weight:800;color:var(--emerald);margin:6px 2px 12px;font-size:1.05rem;}
+
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  padding:14px 16px;margin-bottom:12px;}
+.stud-card{display:flex;align-items:center;gap:12px;}
+.stud-av{width:46px;height:46px;border-radius:14px;background:var(--cream-2);display:grid;
+  place-items:center;font-size:22px;flex-shrink:0;}
+.stud-main{flex:1;min-width:0;}
+.stud-name{font-weight:800;word-break:break-word;line-height:1.15;}
+.badge{display:inline-block;font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:20px;margin-top:3px;}
+.badge.qaida{background:#E6F3EF;color:var(--emerald);}
+.badge.nazra{background:#FFF1D6;color:#9a6f12;}
+.badge.hifz{background:#F0E6FF;color:#6B46C1;}
+.stud-sub{font-size:.78rem;color:var(--ink-soft);font-weight:600;margin-top:2px;}
+.done-chip{font-size:.7rem;font-weight:800;color:var(--emerald-l);}
+
+.att{display:flex;gap:6px;margin-top:10px;}
+.att button{flex:1;border:2px solid var(--line);background:var(--white);border-radius:12px;
+  padding:8px;font-family:inherit;font-weight:800;font-size:.85rem;cursor:pointer;color:var(--ink-soft);}
+.att button.present.on{background:#E6F3EF;border-color:var(--emerald-l);color:var(--emerald);}
+.att button.absent.on{background:#FFE7E3;border-color:var(--coral);color:var(--coral-d);}
+
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:1rem;
+  padding:13px 18px;border-radius:16px;color:#fff;background:var(--emerald);
+  box-shadow:0 6px 0 var(--emerald-d);transition:transform .08s,box-shadow .08s;}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--emerald-d);}
+.btn.gold{background:var(--gold);box-shadow:0 6px 0 #B47F12;color:#4a3510;}
+.btn.coral{background:var(--coral);box-shadow:0 6px 0 var(--coral-d);}
+.btn.ghost{background:var(--white);color:var(--emerald);box-shadow:0 5px 0 #e6dcc4;}
+.btn.sm{padding:9px 14px;font-size:.85rem;border-radius:12px;}
+.btn.block{width:100%;}
+.btn:disabled{opacity:.5;box-shadow:none;}
+.row-btns{display:flex;gap:8px;margin-top:12px;}
+.row-btns .btn{flex:1;}
+
+.fab{position:fixed;bottom:94px;right:calc(50% - 280px + 18px);z-index:30;
+  width:58px;height:58px;border-radius:50%;background:var(--gold);color:#4a3510;border:none;
+  font-size:30px;font-weight:800;box-shadow:0 8px 20px rgba(231,169,40,.5);cursor:pointer;display:none;}
+@media(max-width:600px){.fab{right:18px;}}
+.fab:active{transform:scale(.92);}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-weight:700;margin-bottom:6px;color:var(--emerald-d);font-size:.92rem;}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border-radius:14px;
+  border:2px solid var(--line);background:var(--white);font-family:inherit;font-size:1rem;
+  font-weight:600;color:var(--ink);}
+.field textarea{min-height:70px;resize:vertical;}
+.seg{display:flex;gap:8px;}
+.seg button{flex:1;border:2px solid var(--line);background:var(--white);border-radius:12px;padding:10px;
+  font-family:inherit;font-weight:800;cursor:pointer;color:var(--ink-soft);font-size:.9rem;}
+.seg button.on{background:var(--emerald);color:#fff;border-color:var(--emerald);}
+
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.back{border:none;background:var(--white);width:42px;height:42px;border-radius:13px;font-size:20px;
+  box-shadow:var(--shadow-sm);cursor:pointer;color:var(--emerald);font-weight:800;}
+.topbar h2{margin:0;font-size:1.15rem;color:var(--emerald);font-weight:800;}
+
+.log{border-inline-start:3px solid var(--emerald-l);padding:4px 0 4px 12px;margin-bottom:14px;}
+.log .ld{font-weight:800;font-size:.85rem;color:var(--emerald);}
+.log .lline{font-size:.86rem;margin-top:2px;}
+.log .lline b{color:var(--ink-soft);}
+.pill{display:inline-block;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:12px;}
+.pill.p{background:#E6F3EF;color:var(--emerald);}
+.pill.a{background:#FFE7E3;color:var(--coral-d);}
+
+.empty{text-align:center;color:var(--ink-soft);font-weight:600;padding:30px 16px;}
+.empty .em{font-size:44px;}
+
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:560px;margin:0 auto;background:var(--white);
+  box-shadow:0 -6px 20px rgba(0,0,0,.06);display:none;padding:8px 6px;z-index:20;
+  border-radius:22px 22px 0 0;}
+.nav.show{display:flex;}
+.nav button{flex:1;border:none;background:none;font-family:inherit;font-weight:800;color:var(--ink-soft);
+  font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px;}
+.nav button .ni{font-size:20px;}
+.nav button.on{color:var(--emerald);}
+
+.overlay{position:fixed;inset:0;background:rgba(18,42,32,.55);display:none;align-items:flex-end;
+  justify-content:center;z-index:100;}
+.overlay.show{display:flex;}
+.sheet{background:#fff;border-radius:26px 26px 0 0;padding:22px 18px 28px;width:100%;max-width:560px;
+  max-height:92dvh;overflow-y:auto;animation:up .28s ease;}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+.sheet h3{margin:0 0 4px;color:var(--emerald);font-size:1.15rem;}
+.sheet .who{color:var(--ink-soft);font-weight:700;margin-bottom:16px;font-size:.9rem;}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--emerald-d);
+  color:#fff;padding:12px 20px;border-radius:16px;font-weight:700;z-index:300;opacity:0;
+  transition:opacity .3s;pointer-events:none;font-size:.9rem;}
+.toast.show{opacity:1;}
+
+/* ---- auth ---- */
+#auth{min-height:100dvh;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 22px;text-align:center;}
+#auth.active{display:flex;}
+.auth-brand{font-size:2rem;font-weight:800;color:var(--emerald);}
+.auth-brand span{color:var(--gold);}
+.auth-ar{font-family:'Scheherazade New',serif;font-size:1.8rem;color:var(--emerald-d);direction:rtl;margin-top:-4px;}
+.auth-tag{color:var(--ink-soft);font-weight:700;margin:4px 0 22px;}
+.auth-card{background:var(--white);border-radius:24px;box-shadow:var(--shadow);padding:22px 18px;width:100%;
+  max-width:380px;text-align:start;}
+.auth-switch{margin-top:14px;color:var(--ink-soft);font-weight:700;font-size:.88rem;text-align:center;}
+.auth-switch b{color:var(--emerald);cursor:pointer;text-decoration:underline;}
+.auth-err{background:#FFE7E3;color:var(--coral-d);border-radius:12px;padding:10px 12px;font-weight:700;
+  font-size:.85rem;margin-bottom:12px;display:none;}
+.auth-err.show{display:block;}
+.setup-warn{background:#FFF3D6;color:#8a6d1e;border-radius:14px;padding:14px;font-weight:700;
+  font-size:.85rem;line-height:1.6;max-width:380px;}
+
+/* ---- join code ---- */
+.code-box{background:linear-gradient(135deg,var(--emerald),var(--emerald-l));color:#fff;border-radius:18px;
+  padding:14px;text-align:center;margin-bottom:12px;}
+.code-box .cb-l{font-size:.72rem;opacity:.9;font-weight:700;}
+.code-box .cb-c{font-size:1.5rem;font-weight:800;letter-spacing:2px;margin:2px 0 6px;}
+.code-box button{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:10px;padding:6px 14px;
+  font-family:inherit;font-weight:800;font-size:.78rem;cursor:pointer;}
+.act-cards{display:flex;gap:8px;margin-bottom:12px;}
+.act{flex:1;background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm);padding:12px 6px;text-align:center;}
+.act b{display:block;font-size:1.2rem;color:var(--emerald);}
+.act span{font-size:.68rem;color:var(--ink-soft);font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- ===================== AUTH ===================== -->
+<section id="auth" class="active">
+  <div class="auth-brand"><span>Misbah</span> Teacher</div>
+  <div class="auth-ar">مِصْبَاحُ الْقُرْآن</div>
+  <div class="auth-tag">Ustad Panel 🌙</div>
+
+  <div id="setupWarn" class="setup-warn" style="display:none">
+    ⚠️ <b>Setup baaqi hai.</b><br>
+    Is file mein <b>SUPABASE_URL</b> aur <b>SUPABASE_KEY</b> daalna hai.<br>
+    (Sab se upar &lt;script&gt; ke shuru mein.)
+  </div>
+
+  <div class="auth-card" id="authCard">
+    <div class="auth-err" id="authErr"></div>
+    <div class="field" id="nameField" style="display:none">
+      <label>Aap ka naam</label>
+      <input id="aName" placeholder="e.g. Ustad Ahmed"/>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input id="aEmail" type="email" inputmode="email" placeholder="aap@email.com"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="aPass" type="password" placeholder="kam az kam 6 letters"/>
+    </div>
+    <button class="btn block" id="authBtn" onclick="doAuth()">Login</button>
+    <div class="auth-switch" id="authSwitch">
+      Naya account? <b onclick="toggleAuthMode()">Sign up karein</b>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APP ===================== -->
+<div class="app" id="mainApp" style="display:none">
+  <div class="hdr">
+    <h1>🌙 Misbah <span style="opacity:.85;font-weight:600;font-size:.95rem">· Ustad Panel</span>
+      <button class="logout" onclick="doLogout()">Logout</button></h1>
+    <div class="date" id="todayDate"></div>
+    <div class="stat-row">
+      <div class="stat"><b id="stTotal">0</b><span>Students</span></div>
+      <div class="stat"><b id="stPresent">0</b><span>Present today</span></div>
+      <div class="stat"><b id="stLogged">0</b><span>Logged today</span></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="scr-today">
+    <div class="section-title">Aaj ki class</div>
+    <div id="todayList"><div class="empty">Loading… ⏳</div></div>
+  </section>
+
+  <section class="screen" id="scr-students">
+    <div class="section-title">Saare students</div>
+    <div id="studentList"></div>
+  </section>
+
+  <section class="screen" id="scr-history">
+    <div class="topbar">
+      <button class="back" onclick="showTab('students')">‹</button>
+      <h2 id="histName">Student</h2>
+    </div>
+    <div id="histSummary"></div>
+    <div class="section-title" style="margin-top:8px">Progress history</div>
+    <div id="histList"></div>
+  </section>
+
+  <button class="fab" id="fab" onclick="openStudentForm()">＋</button>
+
+  <div class="nav" id="bottomNav">
+    <button class="on" id="nav-today" onclick="showTab('today')"><span class="ni">📋</span>Today</button>
+    <button id="nav-students" onclick="showTab('students')"><span class="ni">👥</span>Students</button>
+  </div>
+</div>
+
+<!-- ===== STUDENT FORM ===== -->
+<div class="overlay" id="studentSheet">
+  <div class="sheet">
+    <h3 id="sfTitle">New Student</h3>
+    <div class="who">Bachche ki maloomat</div>
+    <div class="field"><label>Naam</label><input id="sfName" maxlength="40" placeholder="e.g. Abdul Wasay"/></div>
+    <div class="field"><label>Level</label>
+      <div class="seg" id="sfLevel">
+        <button data-v="qaida" class="on">Qaida</button>
+        <button data-v="nazra">Nazra</button>
+        <button data-v="hifz">Hifz</button>
+      </div>
+    </div>
+    <div class="field"><label>Class time (optional)</label><input id="sfTime" placeholder="e.g. 5:00 PM"/></div>
+    <div class="field"><label>Parent WhatsApp (optional)</label><input id="sfPhone" inputmode="tel" placeholder="e.g. 03001234567"/>
+      <div style="font-size:.75rem;color:var(--ink-soft);font-weight:600;margin-top:5px">Pakistan number 0 se theek hai. Doosre mulk: country code lagayein (UAE: 9715…)</div></div>
+    <button class="btn block" onclick="saveStudent()">Save 💾</button>
+    <button class="btn coral block" id="sfDelete" onclick="deleteStudent()" style="margin-top:10px;display:none">Delete student 🗑</button>
+    <button class="btn ghost block" onclick="closeSheet('studentSheet')" style="margin-top:10px">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== LOG PROGRESS ===== -->
+<div class="overlay" id="logSheet">
+  <div class="sheet">
+    <h3>Aaj ka progress</h3>
+    <div class="who" id="logWho">Student</div>
+    <div class="field"><label>Haziri (Attendance)</label>
+      <div class="seg" id="logAtt">
+        <button data-v="present" class="on">Present ✅</button>
+        <button data-v="absent">Absent ❌</button>
+      </div>
+    </div>
+    <div id="logFields"></div>
+    <div class="field"><label>Note (optional)</label><textarea id="logNote" placeholder="e.g. Sabaq bohat achha yaad tha, MashaAllah"></textarea></div>
+    <button class="btn block" onclick="saveLog()">Save & continue 💾</button>
+    <button class="btn gold block" onclick="openWaSheet()" style="margin-top:10px">📲 WhatsApp update</button>
+    <button class="btn ghost block" onclick="closeSheet('logSheet')" style="margin-top:10px">Close</button>
+  </div>
+</div>
+
+<!-- ===== WHATSAPP ===== -->
+<div class="overlay" id="waSheet">
+  <div class="sheet">
+    <h3>📲 WhatsApp update</h3>
+    <div class="who" id="waWho"></div>
+    <textarea id="waText" readonly style="min-height:210px;font-family:inherit;font-size:.95rem;line-height:1.5;width:100%;padding:12px 14px;border-radius:14px;border:2px solid var(--line)"></textarea>
+    <button class="btn gold block" onclick="doCopyWa()" style="margin-top:12px">📋 Copy text</button>
+    <button class="btn block" id="waOpenBtn" onclick="openWa()" style="margin-top:10px">📲 Open WhatsApp</button>
+    <div style="font-size:.8rem;color:var(--ink-soft);font-weight:600;margin-top:10px;text-align:center">
+      PC par: <b>Copy text</b> dabayein, phir WhatsApp Web mein paste karein.</div>
+    <button class="btn ghost block" onclick="closeSheet('waSheet')" style="margin-top:10px">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   ⚙️  SETUP — yahan apne Supabase project ki 2 cheezein daalein
+   Supabase Dashboard → Project Settings → Data API / API Keys
+   ============================================================ */
+const SUPABASE_URL = "https://gsccibyqomvwmskdqova.supabase.co";   
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzY2NpYnlxb212d21za2Rxb3ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MzQ3MTgsImV4cCI6MjA5OTQxMDcxOH0.d3KKtiAd29d4ZyXo0KWZq9xseMoxU93KKkBkYwokQQw";        
+/* ============================================================ */
+
+const CONFIGURED = !SUPABASE_URL.startsWith("PASTE") && !SUPABASE_KEY.startsWith("PASTE");
+let sb = null;
+if(CONFIGURED){ sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+else{
+  document.getElementById('setupWarn').style.display='block';
+  document.getElementById('authCard').style.display='none';
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let me=null;                 // logged-in teacher (auth user)
+let STUDENTS=[];             // cached students
+let LOGS={};                 // { 'studentId|date': logRow }
+let ACT={};                  // { studentId: activityRow }
+let signupMode=false;
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function toggleAuthMode(){
+  signupMode=!signupMode;
+  document.getElementById('nameField').style.display = signupMode?'block':'none';
+  document.getElementById('authBtn').textContent = signupMode?'Sign up':'Login';
+  document.getElementById('authSwitch').innerHTML = signupMode
+    ? `Account hai? <b onclick="toggleAuthMode()">Login karein</b>`
+    : `Naya account? <b onclick="toggleAuthMode()">Sign up karein</b>`;
+  showAuthErr('');
+}
+function showAuthErr(m){
+  const e=document.getElementById('authErr');
+  e.textContent=m; e.classList.toggle('show', !!m);
+}
+async function doAuth(){
+  if(!sb) return;
+  const email=document.getElementById('aEmail').value.trim();
+  const pass=document.getElementById('aPass').value;
+  const name=document.getElementById('aName').value.trim()||'Ustad';
+  if(!email||pass.length<6){ showAuthErr('Email aur kam az kam 6 letters ka password daalein.'); return; }
+  const btn=document.getElementById('authBtn'); btn.disabled=true; btn.textContent='…';
+  try{
+    if(signupMode){
+      const {error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
+      if(error) throw error;
+      // some projects require email confirmation
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session){ showAuthErr('Account ban gaya ✅ Email confirm karke login karein.'); toggleAuthMode(); return; }
+    } else {
+      const {error}=await sb.auth.signInWithPassword({email,password:pass});
+      if(error) throw error;
+    }
+    await afterLogin();
+  }catch(e){
+    showAuthErr(e.message||'Kuch masla hua. Dobara try karein.');
+  }finally{
+    btn.disabled=false; btn.textContent=signupMode?'Sign up':'Login';
+  }
+}
+async function doLogout(){
+  await sb.auth.signOut();
+  me=null; STUDENTS=[]; LOGS={}; ACT={};
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('bottomNav').classList.remove('show');
+  document.getElementById('fab').style.display='none';
+  document.getElementById('auth').classList.add('active');
+}
+async function afterLogin(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user) return;
+  me=user;
+  document.getElementById('auth').classList.remove('active');
+  document.getElementById('mainApp').style.display='';
+  document.getElementById('bottomNav').classList.add('show');
+  document.getElementById('fab').style.display='block';
+  await loadAll();
+  showTab('today');
+}
+
+/* ============================================================
+   DATA (Supabase)
+   ============================================================ */
+async function loadAll(){
+  const t=today();
+  const [{data:studs},{data:logs},{data:acts}] = await Promise.all([
+    sb.from('students').select('*').order('created_at'),
+    sb.from('logs').select('*').eq('log_date', t),
+    sb.from('activity').select('*')
+  ]);
+  STUDENTS = studs||[];
+  LOGS={}; (logs||[]).forEach(l=>LOGS[l.student_id+'|'+l.log_date]=l);
+  ACT={};  (acts||[]).forEach(a=>ACT[a.student_id]=a);
+  renderStats(); renderToday(); renderStudents();
+}
+function logFor(sid,d){ return LOGS[sid+'|'+d]; }
+
+async function upsertLog(l){
+  const row={ student_id:l.studentId, teacher_id:me.id, log_date:l.date,
+              present:l.present, level:l.level, data:l.data, note:l.note };
+  const {data,error}=await sb.from('logs').upsert(row,{onConflict:'student_id,log_date'}).select().single();
+  if(error){ toast('Save nahi hua 😕'); return null; }
+  LOGS[l.studentId+'|'+l.date]=data;
+  renderStats(); renderToday();
+  return data;
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const AV={qaida:'📖',nazra:'🕋',hifz:'🧠'};
+const LEVEL_LABEL={qaida:'Qaida',nazra:'Nazra',hifz:'Hifz'};
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function niceDate(iso){ const [y,m,d]=iso.split('-'); const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return d+' '+mn[+m-1]+' '+y; }
+function esc(s){ return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1900); }
+function segValue(id){ const b=document.querySelector('#'+id+' button.on'); return b?b.dataset.v:null; }
+function segInit(id,val){ document.querySelectorAll('#'+id+' button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===val);
+  b.onclick=()=>{ document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); }; }); }
+function makeCode(name){
+  const base=(name.split(' ')[0]||'STU').toUpperCase().replace(/[^A-Z]/g,'').slice(0,6)||'STU';
+  return base+'-'+Math.floor(1000+Math.random()*9000);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderStats(){
+  const t=today();
+  document.getElementById('todayDate').textContent=niceDate(t);
+  document.getElementById('stTotal').textContent=STUDENTS.length;
+  let present=0,logged=0;
+  STUDENTS.forEach(s=>{ const l=logFor(s.id,t); if(l){ logged++; if(l.present) present++; } });
+  document.getElementById('stPresent').textContent=present;
+  document.getElementById('stLogged').textContent=logged;
+}
+function renderToday(){
+  const wrap=document.getElementById('todayList');
+  if(!STUDENTS.length){ wrap.innerHTML=emptyState('Abhi koi student nahi','Neeche ＋ button se student add karein'); return; }
+  const t=today(); wrap.innerHTML='';
+  STUDENTS.forEach(s=>{
+    const l=logFor(s.id,t);
+    const att=l?(l.present?'present':'absent'):null;
+    const a=ACT[s.id];
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`
+      <div class="stud-card">
+        <div class="stud-av">${AV[s.level]}</div>
+        <div class="stud-main">
+          <div class="stud-name">${esc(s.name)}</div>
+          <span class="badge ${s.level}">${LEVEL_LABEL[s.level]}</span>
+          ${s.class_time?`<div class="stud-sub">🕐 ${esc(s.class_time)}</div>`:''}
+          ${a?`<div class="stud-sub">📱 App: ⭐${a.stars||0} · 🧠 ${a.hifz_count||0} ayat</div>`:''}
+        </div>
+        ${l?'<div class="done-chip">✓ Logged</div>':''}
+      </div>
+      <div class="att">
+        <button class="present ${att==='present'?'on':''}" onclick="quickAtt('${s.id}',true)">Present ✅</button>
+        <button class="absent ${att==='absent'?'on':''}" onclick="quickAtt('${s.id}',false)">Absent ❌</button>
+      </div>
+      <div class="row-btns">
+        <button class="btn gold sm" onclick="openLog('${s.id}')">📝 Log progress</button>
+        <button class="btn ghost sm" onclick="openHistory('${s.id}')">📊 History</button>
+      </div>`;
+    wrap.appendChild(c);
+  });
+}
+async function quickAtt(id,present){
+  const s=STUDENTS.find(x=>x.id===id);
+  const t=today();
+  const ex=logFor(id,t);
+  await upsertLog({studentId:id,date:t,level:s.level,present,
+    data:ex?ex.data:{}, note:ex?ex.note:''});
+}
+function renderStudents(){
+  const wrap=document.getElementById('studentList');
+  if(!STUDENTS.length){ wrap.innerHTML=emptyState('Koi student nahi','Neeche ＋ button se pehla student add karein'); return; }
+  wrap.innerHTML='';
+  STUDENTS.forEach(s=>{
+    const c=document.createElement('div'); c.className='card stud-card';
+    c.innerHTML=`<div class="stud-av">${AV[s.level]}</div>
+      <div class="stud-main">
+        <div class="stud-name">${esc(s.name)}</div>
+        <span class="badge ${s.level}">${LEVEL_LABEL[s.level]}</span>
+        <div class="stud-sub">🔑 ${esc(s.join_code)}</div>
+      </div>
+      <button class="btn ghost sm" onclick="openStudentForm('${s.id}')">✎</button>`;
+    c.querySelector('.stud-main').onclick=()=>openHistory(s.id);
+    wrap.appendChild(c);
+  });
+}
+function emptyState(t,s){ return `<div class="empty"><div class="em">🌙</div><div style="font-weight:800;color:var(--ink)">${t}</div><div>${s}</div></div>`; }
+
+/* ============================================================
+   STUDENT FORM
+   ============================================================ */
+let editStudentId=null;
+function openStudentForm(id){
+  editStudentId=id||null;
+  const s=id?STUDENTS.find(x=>x.id===id):null;
+  document.getElementById('sfTitle').textContent=s?'Edit Student':'New Student';
+  document.getElementById('sfName').value=s?s.name:'';
+  document.getElementById('sfTime').value=s?(s.class_time||''):'';
+  document.getElementById('sfPhone').value=s?(s.phone||''):'';
+  segInit('sfLevel', s?s.level:'qaida');
+  document.getElementById('sfDelete').style.display=s?'block':'none';
+  openSheet('studentSheet');
+}
+async function saveStudent(){
+  const name=document.getElementById('sfName').value.trim();
+  if(!name){ document.getElementById('sfName').focus(); return; }
+  const row={ name, level:segValue('sfLevel'),
+    class_time:document.getElementById('sfTime').value.trim(),
+    phone:document.getElementById('sfPhone').value.trim(),
+    teacher_id:me.id };
+  let error;
+  if(editStudentId){ ({error}=await sb.from('students').update(row).eq('id',editStudentId)); }
+  else { row.join_code=makeCode(name); ({error}=await sb.from('students').insert(row)); }
+  if(error){ toast('Save nahi hua 😕'); return; }
+  closeSheet('studentSheet');
+  await loadAll();
+  toast(editStudentId?'Student updated':'Student added ✅');
+}
+async function deleteStudent(){
+  if(!editStudentId) return;
+  const {error}=await sb.from('students').delete().eq('id',editStudentId);
+  if(error){ toast('Delete nahi hua 😕'); return; }
+  closeSheet('studentSheet');
+  await loadAll(); showTab('students');
+  toast('Student deleted');
+}
+
+/* ============================================================
+   LOG PROGRESS
+   ============================================================ */
+let logStudentId=null;
+function levelFields(level,data){
+  data=data||{};
+  if(level==='qaida'){
+    return `<div class="field"><label>Aaj tak Qaida (lesson / harf)</label>
+      <input id="f_lesson" value="${esc(data.lesson||'')}" placeholder="e.g. Huroof — Seen tak"/></div>`;
+  }
+  if(level==='nazra'){
+    return `<div class="field"><label>Para (Juz)</label>
+        <input id="f_para" type="number" min="1" max="30" value="${esc(data.para||'')}" placeholder="1–30"/></div>
+      <div class="field"><label>Page / line</label>
+        <input id="f_page" value="${esc(data.page||'')}" placeholder="e.g. Page 7, line 4"/></div>`;
+  }
+  return `
+    <div class="field"><label>🆕 Sabaq (naya sabaq)</label>
+      <input id="f_sabaq" value="${esc(data.sabaq||'')}" placeholder="e.g. Al-Baqarah 30–33"/></div>
+    <div class="field"><label>🔁 Sabqi (haali revision)</label>
+      <input id="f_sabqi" value="${esc(data.sabqi||'')}" placeholder="e.g. Al-Baqarah 1–29"/></div>
+    <div class="field"><label>📚 Manzil (purani revision)</label>
+      <input id="f_manzil" value="${esc(data.manzil||'')}" placeholder="e.g. Para 30"/></div>
+    <div class="field"><label>Quality</label>
+      <div class="seg" id="logQuality">
+        <button data-v="fluent" class="${(data.quality||'fluent')==='fluent'?'on':''}">Fluent ⭐</button>
+        <button data-v="ok" class="${data.quality==='ok'?'on':''}">Some slips</button>
+        <button data-v="weak" class="${data.quality==='weak'?'on':''}">Weak</button>
+      </div></div>`;
+}
+function openLog(id){
+  logStudentId=id;
+  const s=STUDENTS.find(x=>x.id===id);
+  const t=today();
+  const ex=logFor(id,t);
+  document.getElementById('logWho').textContent=s.name+' · '+LEVEL_LABEL[s.level]+' · '+niceDate(t);
+  document.getElementById('logFields').innerHTML=levelFields(s.level, ex?ex.data:{});
+  if(s.level==='hifz') segInit('logQuality', (ex&&ex.data.quality)||'fluent');
+  segInit('logAtt', ex?(ex.present?'present':'absent'):'present');
+  document.getElementById('logNote').value=ex?(ex.note||''):'';
+  openSheet('logSheet');
+}
+function val(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+function collectLog(){
+  const s=STUDENTS.find(x=>x.id===logStudentId);
+  const data={};
+  if(s.level==='qaida') data.lesson=val('f_lesson');
+  else if(s.level==='nazra'){ data.para=val('f_para'); data.page=val('f_page'); }
+  else { data.sabaq=val('f_sabaq'); data.sabqi=val('f_sabqi'); data.manzil=val('f_manzil'); data.quality=segValue('logQuality'); }
+  return { studentId:logStudentId, date:today(), level:s.level,
+    present:segValue('logAtt')==='present', data, note:document.getElementById('logNote').value.trim() };
+}
+async function saveLog(){
+  await upsertLog(collectLog());
+  closeSheet('logSheet');
+  toast('Progress saved ✅');
+}
+
+/* ---- WhatsApp ---- */
+function waNum(phone){
+  let n=(phone||'').replace(/[^0-9]/g,''); if(!n) return '';
+  if(n.startsWith('00')) n=n.slice(2); else if(n.startsWith('0')) n='92'+n.slice(1);
+  return n;
+}
+function buildWaText(l,s){
+  const lines=[`السلام علیکم 🌙`,`*${s.name}* ki aaj ki class — ${niceDate(l.date)}`,``];
+  lines.push(`Haziri: ${l.present?'Present ✅':'Absent ❌'}`);
+  if(s.level==='qaida'){ if(l.data.lesson) lines.push(`Qaida: ${l.data.lesson}`); }
+  else if(s.level==='nazra'){ if(l.data.para) lines.push(`Para: ${l.data.para}`); if(l.data.page) lines.push(`Page: ${l.data.page}`); }
+  else{
+    if(l.data.sabaq) lines.push(`🆕 Sabaq: ${l.data.sabaq}`);
+    if(l.data.sabqi) lines.push(`🔁 Sabqi: ${l.data.sabqi}`);
+    if(l.data.manzil) lines.push(`📚 Manzil: ${l.data.manzil}`);
+    if(l.data.quality) lines.push(`Quality: ${({fluent:'Fluent ⭐',ok:'Some slips',weak:'Needs revision'})[l.data.quality]}`);
+  }
+  if(l.note) lines.push(``,`Note: ${l.note}`);
+  lines.push(``,`— Misbah-ul-Quran`);
+  return lines.join('\n');
+}
+let _waText='',_waNum='';
+async function openWaSheet(){
+  const l=collectLog();
+  const s=STUDENTS.find(x=>x.id===l.studentId);
+  await upsertLog(l);
+  _waText=buildWaText(l,s); _waNum=waNum(s.phone);
+  document.getElementById('waWho').textContent=s.name+(s.phone?' · 📱 '+s.phone:' · (no number saved)');
+  document.getElementById('waText').value=_waText;
+  document.getElementById('waOpenBtn').textContent=_waNum?'📲 Open WhatsApp chat':'📲 Open WhatsApp Web';
+  openSheet('waSheet');
+}
+function doCopyWa(){
+  const ta=document.getElementById('waText');
+  ta.removeAttribute('readonly'); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
+  let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+  ta.setAttribute('readonly','');
+  if(ok) toast('Copied 📋 — WhatsApp mein paste karein');
+  else if(navigator.clipboard) navigator.clipboard.writeText(_waText).then(()=>toast('Copied 📋'),()=>toast('Text select karke copy karein'));
+}
+function openWa(){
+  const url=_waNum ? 'https://wa.me/'+_waNum+'?text='+encodeURIComponent(_waText) : 'https://web.whatsapp.com/';
+  if(!window.open(url,'_blank')) toast('Popup block hua — "Copy text" use karein');
+}
+
+/* ============================================================
+   HISTORY  (+ join code + app activity)
+   ============================================================ */
+async function openHistory(id){
+  const s=STUDENTS.find(x=>x.id===id);
+  document.getElementById('histName').textContent=s.name;
+  const {data:logs}=await sb.from('logs').select('*').eq('student_id',id).order('log_date',{ascending:false});
+  const a=ACT[s.id];
+  const present=(logs||[]).filter(l=>l.present).length;
+
+  document.getElementById('histSummary').innerHTML=`
+    <div class="code-box">
+      <div class="cb-l">Student app ka join code</div>
+      <div class="cb-c">${esc(s.join_code)}</div>
+      <button onclick="copyCode('${esc(s.join_code)}')">📋 Copy code</button>
+    </div>
+    ${a?`<div class="act-cards">
+        <div class="act"><b>⭐ ${a.stars||0}</b><span>Stars</span></div>
+        <div class="act"><b>${a.hifz_count||0}</b><span>Ayat yaad 🧠</span></div>
+        <div class="act"><b>${a.last_read?('S'+a.last_read.surah):'—'}</b><span>Last read 📖</span></div>
+      </div>`
+     :`<div class="card" style="text-align:center;color:var(--ink-soft);font-weight:700;font-size:.85rem">
+        Student app abhi link nahi hui. Upar wala code bachche ko dein.</div>`}
+    <div class="card"><b style="color:var(--emerald)">${LEVEL_LABEL[s.level]}</b>
+      &nbsp;·&nbsp; ${(logs||[]).length} classes &nbsp;·&nbsp; ${present} present
+      ${s.phone?`<div class="stud-sub" style="margin-top:6px">📱 ${esc(s.phone)}</div>`:''}</div>`;
+
+  const wrap=document.getElementById('histList');
+  if(!logs||!logs.length){ wrap.innerHTML=emptyState('Abhi koi record nahi','Today screen se progress log karein'); }
+  else{
+    wrap.innerHTML='';
+    logs.forEach(l=>{
+      const d=l.data||{}; const det=[];
+      if(l.level==='qaida'&&d.lesson) det.push(`<b>Qaida:</b> ${esc(d.lesson)}`);
+      if(l.level==='nazra'){ if(d.para) det.push(`<b>Para:</b> ${esc(d.para)}`); if(d.page) det.push(`<b>Page:</b> ${esc(d.page)}`); }
+      if(l.level==='hifz'){
+        if(d.sabaq) det.push(`<b>Sabaq:</b> ${esc(d.sabaq)}`);
+        if(d.sabqi) det.push(`<b>Sabqi:</b> ${esc(d.sabqi)}`);
+        if(d.manzil) det.push(`<b>Manzil:</b> ${esc(d.manzil)}`);
+      }
+      if(l.note) det.push(`<b>Note:</b> ${esc(l.note)}`);
+      const el=document.createElement('div'); el.className='log';
+      el.innerHTML=`<div class="ld">${niceDate(l.log_date)} <span class="pill ${l.present?'p':'a'}">${l.present?'Present':'Absent'}</span></div>
+        ${det.map(x=>`<div class="lline">${x}</div>`).join('')}`;
+      wrap.appendChild(el);
+    });
+  }
+  showScreen('history');
+}
+function copyCode(code){
+  if(navigator.clipboard) navigator.clipboard.writeText(code).then(()=>toast('Code copied 📋'),()=>{});
+  else toast(code);
+}
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function showScreen(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scr-'+n).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showTab(n){
+  showScreen(n);
+  document.getElementById('nav-today').classList.toggle('on',n==='today');
+  document.getElementById('nav-students').classList.toggle('on',n==='students');
+  document.getElementById('fab').style.display=(n==='history')?'none':'block';
+  if(n==='today') renderToday();
+  if(n==='students') renderStudents();
+}
+function openSheet(id){ document.getElementById(id).classList.add('show'); }
+function closeSheet(id){ document.getElementById(id).classList.remove('show'); }
+['studentSheet','logSheet','waSheet'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id) closeSheet(id); });
+});
+
+/* ============================================================
+   BOOT — auto-login if session exists
+   ============================================================ */
+(async function boot(){
+  if(!sb) return;
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await afterLogin();
+})();
+</script>
+</body>
+</html>
