@@ -302,8 +302,8 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
    ⚙️  SETUP — yahan apne Supabase project ki 2 cheezein daalein
    Supabase Dashboard → Project Settings → Data API / API Keys
    ============================================================ */
-const SUPABASE_URL = "https://gsccibyqomvwmskdqova.supabase.co";   
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzY2NpYnlxb212d21za2Rxb3ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MzQ3MTgsImV4cCI6MjA5OTQxMDcxOH0.d3KKtiAd29d4ZyXo0KWZq9xseMoxU93KKkBkYwokQQw";        
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";   // e.g. https://abcd1234.supabase.co
+const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE";       // the long "anon / publishable" key
 /* ============================================================ */
 
 const CONFIGURED = !SUPABASE_URL.startsWith("PASTE") && !SUPABASE_KEY.startsWith("PASTE");
@@ -339,27 +339,37 @@ function showAuthErr(m){
   const e=document.getElementById('authErr');
   e.textContent=m; e.classList.toggle('show', !!m);
 }
+function errText(e){
+  if(!e) return 'Anjaan masla.';
+  if(typeof e==='string') return e;
+  return e.message || e.error_description || e.msg || e.hint
+      || (e.status ? ('Error '+e.status) : JSON.stringify(e));
+}
 async function doAuth(){
-  if(!sb) return;
+  if(!sb){ showAuthErr('Supabase setup nahi hai — URL/key daalein.'); return; }
   const email=document.getElementById('aEmail').value.trim();
   const pass=document.getElementById('aPass').value;
   const name=document.getElementById('aName').value.trim()||'Ustad';
   if(!email||pass.length<6){ showAuthErr('Email aur kam az kam 6 letters ka password daalein.'); return; }
   const btn=document.getElementById('authBtn'); btn.disabled=true; btn.textContent='…';
+  showAuthErr('');
   try{
     if(signupMode){
-      const {error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
+      const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
       if(error) throw error;
-      // some projects require email confirmation
-      const {data:{session}}=await sb.auth.getSession();
-      if(!session){ showAuthErr('Account ban gaya ✅ Email confirm karke login karein.'); toggleAuthMode(); return; }
+      if(!data.session){
+        showAuthErr('✅ Account ban gaya. Ab apne email par confirmation link kholein, phir Login karein.');
+        signupMode=true; toggleAuthMode();     // switch to Login view
+        return;
+      }
     } else {
       const {error}=await sb.auth.signInWithPassword({email,password:pass});
       if(error) throw error;
     }
     await afterLogin();
   }catch(e){
-    showAuthErr(e.message||'Kuch masla hua. Dobara try karein.');
+    console.error('AUTH ERROR:', e);
+    showAuthErr(errText(e));
   }finally{
     btn.disabled=false; btn.textContent=signupMode?'Sign up':'Login';
   }
