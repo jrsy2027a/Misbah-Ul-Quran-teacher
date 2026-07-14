@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,6 +162,29 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
 .act{flex:1;background:var(--white);border-radius:16px;box-shadow:var(--shadow-sm);padding:12px 6px;text-align:center;}
 .act b{display:block;font-size:1.2rem;color:var(--emerald);}
 .act span{font-size:.68rem;color:var(--ink-soft);font-weight:700;}
+
+/* ===== language picker ===== */
+.lang-pick{display:flex;gap:8px;margin:0 0 20px;justify-content:center;}
+.lang-pick button{border:2px solid #E2CFA0;background:rgba(255,255,255,.8);border-radius:12px;
+  padding:8px 14px;font-family:inherit;font-weight:800;font-size:.9rem;color:var(--ink-soft);cursor:pointer;}
+.lang-pick button.on{background:var(--emerald);color:#fff;border-color:var(--emerald);}
+.lang-pick button:active{transform:scale(.94);}
+
+/* ===== RTL + fonts ===== */
+html[lang="ur"] body{font-family:'Noto Nastaliq Urdu','Baloo 2',serif;}
+html[lang="ur"] .section-title, html[lang="ur"] .stud-name,
+html[lang="ur"] .field label, html[lang="ur"] .btn, html[lang="ur"] .sheet h3{
+  font-family:'Noto Nastaliq Urdu','Baloo 2',serif;line-height:2;}
+html[lang="ar"] body, html[lang="ar"] .section-title, html[lang="ar"] .stud-name,
+html[lang="ar"] .field label, html[lang="ar"] .btn, html[lang="ar"] .sheet h3,
+html[lang="ar"] .hdr h1, html[lang="ar"] .stat span{
+  font-family:'Scheherazade New','Baloo 2',serif;}
+html[dir="rtl"] .stud-main, html[dir="rtl"] .field label,
+html[dir="rtl"] .section-title, html[dir="rtl"] .sheet h3{text-align:right;}
+html[dir="rtl"] .back{transform:scaleX(-1);}
+html[dir="rtl"] .fab{right:auto;left:calc(50% - 280px + 18px);}
+@media(max-width:600px){ html[dir="rtl"] .fab{left:18px;right:auto;} }
+html[dir="rtl"] textarea, html[dir="rtl"] #waText{direction:ltr;text-align:left;}
 </style>
 </head>
 <body>
@@ -169,7 +193,12 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
 <section id="auth" class="active">
   <div class="auth-brand"><span>Misbah</span> Teacher</div>
   <div class="auth-ar">مِصْبَاحُ الْقُرْآن</div>
-  <div class="auth-tag">Ustad Panel 🌙</div>
+  <div class="auth-tag" data-i18n="ustadPanel">Ustad Panel 🌙</div>
+  <div class="lang-pick" id="langPick">
+    <button data-l="en" onclick="setLang('en')">English</button>
+    <button data-l="ur" onclick="setLang('ur')">اردو</button>
+    <button data-l="ar" onclick="setLang('ar')">العربية</button>
+  </div>
 
   <div id="setupWarn" class="setup-warn" style="display:none">
     ⚠️ <b>Setup baaqi hai.</b><br>
@@ -180,21 +209,19 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
   <div class="auth-card" id="authCard">
     <div class="auth-err" id="authErr"></div>
     <div class="field" id="nameField" style="display:none">
-      <label>Aap ka naam</label>
-      <input id="aName" placeholder="e.g. Ustad Ahmed"/>
+      <label data-i18n="yourName">Your name</label>
+      <input id="aName" data-i18n-ph="namePh" placeholder="e.g. Ustad Ahmed"/>
     </div>
     <div class="field">
-      <label>Email</label>
-      <input id="aEmail" type="email" inputmode="email" placeholder="aap@email.com"/>
+      <label data-i18n="email">Email</label>
+      <input id="aEmail" type="email" inputmode="email" placeholder="name@email.com"/>
     </div>
     <div class="field">
-      <label>Password</label>
-      <input id="aPass" type="password" placeholder="kam az kam 6 letters"/>
+      <label data-i18n="password">Password</label>
+      <input id="aPass" type="password" data-i18n-ph="passPh" placeholder="at least 6 characters"/>
     </div>
-    <button class="btn block" id="authBtn" onclick="doAuth()">Login</button>
-    <div class="auth-switch" id="authSwitch">
-      Naya account? <b onclick="toggleAuthMode()">Sign up karein</b>
-    </div>
+    <button class="btn block" id="authBtn" onclick="doAuth()" data-i18n="login">Login</button>
+    <div class="auth-switch" id="authSwitch" data-i18n="noAccount" data-i18n-html></div>
   </div>
 </section>
 
@@ -202,22 +229,22 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
 <div class="app" id="mainApp" style="display:none">
   <div class="hdr">
     <h1>🌙 Misbah <span style="opacity:.85;font-weight:600;font-size:.95rem">· Ustad Panel</span>
-      <button class="logout" onclick="doLogout()">Logout</button></h1>
+      <button class="logout" onclick="doLogout()" data-i18n="logout">Logout</button></h1>
     <div class="date" id="todayDate"></div>
     <div class="stat-row">
-      <div class="stat"><b id="stTotal">0</b><span>Students</span></div>
-      <div class="stat"><b id="stPresent">0</b><span>Present today</span></div>
-      <div class="stat"><b id="stLogged">0</b><span>Logged today</span></div>
+      <div class="stat"><b id="stTotal">0</b><span data-i18n="students">Students</span></div>
+      <div class="stat"><b id="stPresent">0</b><span data-i18n="presentToday">Present today</span></div>
+      <div class="stat"><b id="stLogged">0</b><span data-i18n="loggedToday">Logged today</span></div>
     </div>
   </div>
 
   <section class="screen active" id="scr-today">
-    <div class="section-title">Aaj ki class</div>
-    <div id="todayList"><div class="empty">Loading… ⏳</div></div>
+    <div class="section-title" data-i18n="todayClass">Today's class</div>
+    <div id="todayList"><div class="empty" data-i18n="loading">Loading…</div></div>
   </section>
 
   <section class="screen" id="scr-students">
-    <div class="section-title">Saare students</div>
+    <div class="section-title" data-i18n="allStudents">All students</div>
     <div id="studentList"></div>
   </section>
 
@@ -227,15 +254,15 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
       <h2 id="histName">Student</h2>
     </div>
     <div id="histSummary"></div>
-    <div class="section-title" style="margin-top:8px">Progress history</div>
+    <div class="section-title" style="margin-top:8px" data-i18n="progHistory">Progress history</div>
     <div id="histList"></div>
   </section>
 
   <button class="fab" id="fab" onclick="openStudentForm()">＋</button>
 
   <div class="nav" id="bottomNav">
-    <button class="on" id="nav-today" onclick="showTab('today')"><span class="ni">📋</span>Today</button>
-    <button id="nav-students" onclick="showTab('students')"><span class="ni">👥</span>Students</button>
+    <button class="on" id="nav-today" onclick="showTab('today')"><span class="ni">📋</span><span data-i18n="today">Today</span></button>
+    <button id="nav-students" onclick="showTab('students')"><span class="ni">👥</span><span data-i18n="students">Students</span></button>
   </div>
 </div>
 
@@ -243,54 +270,53 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
 <div class="overlay" id="studentSheet">
   <div class="sheet">
     <h3 id="sfTitle">New Student</h3>
-    <div class="who">Bachche ki maloomat</div>
-    <div class="field"><label>Naam</label><input id="sfName" maxlength="40" placeholder="e.g. Abdul Wasay"/></div>
-    <div class="field"><label>Level</label>
+    <div class="who" data-i18n="studentInfo">Student details</div>
+    <div class="field"><label data-i18n="name">Name</label><input id="sfName" maxlength="40" data-i18n-ph="namePh2" placeholder="e.g. Abdul Wasay"/></div>
+    <div class="field"><label data-i18n="level">Level</label>
       <div class="seg" id="sfLevel">
-        <button data-v="qaida" class="on">Qaida</button>
-        <button data-v="nazra">Nazra</button>
-        <button data-v="hifz">Hifz</button>
+        <button data-v="qaida" class="on" data-i18n="qaida">Qaida</button>
+        <button data-v="nazra" data-i18n="nazra">Nazra</button>
+        <button data-v="hifz" data-i18n="hifz">Hifz</button>
       </div>
     </div>
-    <div class="field"><label>Class time (optional)</label><input id="sfTime" placeholder="e.g. 5:00 PM"/></div>
-    <div class="field"><label>Parent WhatsApp (optional)</label><input id="sfPhone" inputmode="tel" placeholder="e.g. 03001234567"/>
-      <div style="font-size:.75rem;color:var(--ink-soft);font-weight:600;margin-top:5px">Pakistan number 0 se theek hai. Doosre mulk: country code lagayein (UAE: 9715…)</div></div>
-    <button class="btn block" onclick="saveStudent()">Save 💾</button>
-    <button class="btn coral block" id="sfDelete" onclick="deleteStudent()" style="margin-top:10px;display:none">Delete student 🗑</button>
-    <button class="btn ghost block" onclick="closeSheet('studentSheet')" style="margin-top:10px">Cancel</button>
+    <div class="field"><label data-i18n="classTime">Class time (optional)</label><input id="sfTime" data-i18n-ph="timePh" placeholder="e.g. 5:00 PM"/></div>
+    <div class="field"><label data-i18n="parentWa">Parent WhatsApp (optional)</label><input id="sfPhone" inputmode="tel" placeholder="e.g. 03001234567"/>
+      <div style="font-size:.75rem;color:var(--ink-soft);font-weight:600;margin-top:5px" data-i18n="phoneHint"></div></div>
+    <button class="btn block" onclick="saveStudent()" data-i18n="save">Save 💾</button>
+    <button class="btn coral block" id="sfDelete" onclick="deleteStudent()" style="margin-top:10px;display:none" data-i18n="delStudent">Delete student 🗑</button>
+    <button class="btn ghost block" onclick="closeSheet('studentSheet')" style="margin-top:10px" data-i18n="cancel">Cancel</button>
   </div>
 </div>
 
 <!-- ===== LOG PROGRESS ===== -->
 <div class="overlay" id="logSheet">
   <div class="sheet">
-    <h3>Aaj ka progress</h3>
+    <h3 data-i18n="todayProgress">Today's progress</h3>
     <div class="who" id="logWho">Student</div>
-    <div class="field"><label>Haziri (Attendance)</label>
+    <div class="field"><label data-i18n="attendance">Attendance</label>
       <div class="seg" id="logAtt">
-        <button data-v="present" class="on">Present ✅</button>
-        <button data-v="absent">Absent ❌</button>
+        <button data-v="present" class="on" data-i18n="present">Present ✅</button>
+        <button data-v="absent" data-i18n="absent">Absent ❌</button>
       </div>
     </div>
     <div id="logFields"></div>
-    <div class="field"><label>Note (optional)</label><textarea id="logNote" placeholder="e.g. Sabaq bohat achha yaad tha, MashaAllah"></textarea></div>
-    <button class="btn block" onclick="saveLog()">Save & continue 💾</button>
-    <button class="btn gold block" onclick="openWaSheet()" style="margin-top:10px">📲 WhatsApp update</button>
-    <button class="btn ghost block" onclick="closeSheet('logSheet')" style="margin-top:10px">Close</button>
+    <div class="field"><label data-i18n="note">Note (optional)</label><textarea id="logNote" data-i18n-ph="notePh"></textarea></div>
+    <button class="btn block" onclick="saveLog()" data-i18n="saveCont">Save &amp; continue 💾</button>
+    <button class="btn gold block" onclick="openWaSheet()" style="margin-top:10px" data-i18n="waUpdate">📲 WhatsApp update</button>
+    <button class="btn ghost block" onclick="closeSheet('logSheet')" style="margin-top:10px" data-i18n="close">Close</button>
   </div>
 </div>
 
 <!-- ===== WHATSAPP ===== -->
 <div class="overlay" id="waSheet">
   <div class="sheet">
-    <h3>📲 WhatsApp update</h3>
+    <h3 data-i18n="waUpdate">📲 WhatsApp update</h3>
     <div class="who" id="waWho"></div>
     <textarea id="waText" readonly style="min-height:210px;font-family:inherit;font-size:.95rem;line-height:1.5;width:100%;padding:12px 14px;border-radius:14px;border:2px solid var(--line)"></textarea>
-    <button class="btn gold block" onclick="doCopyWa()" style="margin-top:12px">📋 Copy text</button>
+    <button class="btn gold block" onclick="doCopyWa()" style="margin-top:12px" data-i18n="copyText">📋 Copy text</button>
     <button class="btn block" id="waOpenBtn" onclick="openWa()" style="margin-top:10px">📲 Open WhatsApp</button>
-    <div style="font-size:.8rem;color:var(--ink-soft);font-weight:600;margin-top:10px;text-align:center">
-      PC par: <b>Copy text</b> dabayein, phir WhatsApp Web mein paste karein.</div>
-    <button class="btn ghost block" onclick="closeSheet('waSheet')" style="margin-top:10px">Close</button>
+    <div style="font-size:.8rem;color:var(--ink-soft);font-weight:600;margin-top:10px;text-align:center" data-i18n="waHint" data-i18n-html></div>
+    <button class="btn ghost block" onclick="closeSheet('waSheet')" style="margin-top:10px" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -299,10 +325,141 @@ body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--ink);
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ============================================================
+   0. i18n — English / اردو / العربية
+   ============================================================ */
+const LANGS={en:{dir:'ltr'},ur:{dir:'rtl'},ar:{dir:'rtl'}};
+const T_DICT={
+  /* auth */
+  ustadPanel:  {en:"Ustad Panel 🌙", ur:"استاد پینل 🌙", ar:"لوحة المعلّم 🌙"},
+  yourName:    {en:"Your name", ur:"آپ کا نام", ar:"اسمك"},
+  namePh:      {en:"e.g. Ustad Ahmed", ur:"مثلاً استاد احمد", ar:"مثال: الأستاذ أحمد"},
+  email:       {en:"Email", ur:"ای میل", ar:"البريد الإلكتروني"},
+  password:    {en:"Password", ur:"پاس ورڈ", ar:"كلمة المرور"},
+  passPh:      {en:"at least 6 characters", ur:"کم از کم 6 حروف", ar:"٦ أحرف على الأقل"},
+  login:       {en:"Login", ur:"لاگ اِن", ar:"تسجيل الدخول"},
+  signup:      {en:"Sign up", ur:"اکاؤنٹ بنائیں", ar:"إنشاء حساب"},
+  logout:      {en:"Logout", ur:"لاگ آؤٹ", ar:"خروج"},
+  noAccount:   {en:"New here? <b onclick=\"toggleAuthMode()\">Sign up</b>", ur:"نیا اکاؤنٹ؟ <b onclick=\"toggleAuthMode()\">بنائیں</b>", ar:"حساب جديد؟ <b onclick=\"toggleAuthMode()\">أنشئه</b>"},
+  haveAccount: {en:"Have an account? <b onclick=\"toggleAuthMode()\">Login</b>", ur:"اکاؤنٹ ہے؟ <b onclick=\"toggleAuthMode()\">لاگ اِن</b>", ar:"لديك حساب؟ <b onclick=\"toggleAuthMode()\">سجّل الدخول</b>"},
+  authNeed:    {en:"Enter an email and a password of at least 6 characters.", ur:"ای میل اور کم از کم 6 حروف کا پاس ورڈ ڈالیں۔", ar:"أدخل بريداً وكلمة مرور من ٦ أحرف على الأقل."},
+  authSetup:   {en:"Supabase is not set up — add your URL and key.", ur:"Supabase سیٹ اپ نہیں — URL اور key ڈالیں۔", ar:"لم يتم إعداد Supabase — أضف الرابط والمفتاح."},
+  confirmMail: {en:"✅ Account created. Open the confirmation link in your email, then log in.", ur:"✅ اکاؤنٹ بن گیا۔ ای میل کا لنک کھول کر لاگ اِن کریں۔", ar:"✅ تم إنشاء الحساب. افتح رابط التأكيد في بريدك ثم سجّل الدخول."},
+
+  /* header */
+  students:    {en:"Students", ur:"طلبہ", ar:"الطلاب"},
+  presentToday:{en:"Present today", ur:"آج حاضر", ar:"حاضر اليوم"},
+  loggedToday: {en:"Logged today", ur:"آج درج", ar:"مُسجّل اليوم"},
+  todayClass:  {en:"Today's class", ur:"آج کی کلاس", ar:"درس اليوم"},
+  allStudents: {en:"All students", ur:"تمام طلبہ", ar:"جميع الطلاب"},
+  today:       {en:"Today", ur:"آج", ar:"اليوم"},
+
+  /* student */
+  newStudent:  {en:"New Student", ur:"نیا طالب علم", ar:"طالب جديد"},
+  editStudent: {en:"Edit Student", ur:"طالب علم میں تبدیلی", ar:"تعديل الطالب"},
+  studentInfo: {en:"Student details", ur:"طالب علم کی معلومات", ar:"بيانات الطالب"},
+  name:        {en:"Name", ur:"نام", ar:"الاسم"},
+  namePh2:     {en:"e.g. Abdul Wasay", ur:"مثلاً عبدالواسع", ar:"مثال: عبد الواسع"},
+  level:       {en:"Level", ur:"سطح", ar:"المستوى"},
+  qaida:       {en:"Qaida", ur:"قاعدہ", ar:"القاعدة"},
+  nazra:       {en:"Nazra", ur:"ناظرہ", ar:"النظرة"},
+  hifz:        {en:"Hifz", ur:"حفظ", ar:"الحفظ"},
+  classTime:   {en:"Class time (optional)", ur:"کلاس کا وقت (اختیاری)", ar:"وقت الدرس (اختياري)"},
+  timePh:      {en:"e.g. 5:00 PM", ur:"مثلاً شام 5:00", ar:"مثال: ٥:٠٠ مساءً"},
+  parentWa:    {en:"Parent WhatsApp (optional)", ur:"والدین کا واٹس ایپ (اختیاری)", ar:"واتساب ولي الأمر (اختياري)"},
+  phoneHint:   {en:"Include the country code for numbers outside Pakistan (UAE: 9715…)", ur:"پاکستان سے باہر کے نمبر کے لیے کنٹری کوڈ لگائیں (UAE: 9715…)", ar:"أضف رمز الدولة للأرقام خارج باكستان (الإمارات: ٩٧١٥…)"},
+  save:        {en:"Save 💾", ur:"محفوظ کریں 💾", ar:"حفظ 💾"},
+  delStudent:  {en:"Delete student 🗑", ur:"طالب علم حذف کریں 🗑", ar:"احذف الطالب 🗑"},
+  cancel:      {en:"Cancel", ur:"منسوخ", ar:"إلغاء"},
+  close:       {en:"Close", ur:"بند کریں", ar:"إغلاق"},
+  added:       {en:"Student added ✅", ur:"طالب علم شامل ہو گیا ✅", ar:"تمت إضافة الطالب ✅"},
+  updated:     {en:"Student updated", ur:"تبدیلی محفوظ", ar:"تم التحديث"},
+  deleted:     {en:"Student deleted", ur:"حذف ہو گیا", ar:"تم الحذف"},
+  saveFail:    {en:"Could not save 😕", ur:"محفوظ نہیں ہوا 😕", ar:"تعذّر الحفظ 😕"},
+  noStudents:  {en:"No students yet", ur:"ابھی کوئی طالب علم نہیں", ar:"لا يوجد طلاب بعد"},
+  noStudentsSub:{en:"Tap ＋ below to add one", ur:"نیچے ＋ سے شامل کریں", ar:"اضغط ＋ بالأسفل للإضافة"},
+
+  /* log */
+  todayProgress:{en:"Today's progress", ur:"آج کی پیش رفت", ar:"تقدّم اليوم"},
+  attendance:  {en:"Attendance", ur:"حاضری", ar:"الحضور"},
+  present:     {en:"Present ✅", ur:"حاضر ✅", ar:"حاضر ✅"},
+  absent:      {en:"Absent ❌", ur:"غیر حاضر ❌", ar:"غائب ❌"},
+  qaidaField:  {en:"Qaida so far (lesson / letter)", ur:"اب تک قاعدہ (سبق / حرف)", ar:"القاعدة حتى الآن (الدرس / الحرف)"},
+  qaidaPh:     {en:"e.g. Letters — up to Seen", ur:"مثلاً حروف — سین تک", ar:"مثال: الحروف — حتى السين"},
+  para:        {en:"Para (Juz)", ur:"پارہ (جزء)", ar:"الجزء"},
+  pageLine:    {en:"Page / line", ur:"صفحہ / سطر", ar:"الصفحة / السطر"},
+  pagePh:      {en:"e.g. Page 7, line 4", ur:"مثلاً صفحہ 7، سطر 4", ar:"مثال: صفحة ٧، سطر ٤"},
+  sabaq:       {en:"🆕 Sabaq (new lesson)", ur:"🆕 سبق (نیا سبق)", ar:"🆕 السبق (درس جديد)"},
+  sabqi:       {en:"🔁 Sabqi (recent revision)", ur:"🔁 سبقی (حالیہ دہرائی)", ar:"🔁 السبقي (مراجعة قريبة)"},
+  manzil:      {en:"📚 Manzil (older revision)", ur:"📚 منزل (پرانی دہرائی)", ar:"📚 المنزل (مراجعة قديمة)"},
+  quality:     {en:"Quality", ur:"معیار", ar:"الإتقان"},
+  fluent:      {en:"Fluent ⭐", ur:"روانی ⭐", ar:"متقن ⭐"},
+  someSlips:   {en:"Some slips", ur:"کچھ غلطیاں", ar:"بعض الأخطاء"},
+  weak:        {en:"Weak", ur:"کمزور", ar:"ضعيف"},
+  needsRev:    {en:"Needs revision", ur:"دہرائی درکار", ar:"يحتاج مراجعة"},
+  note:        {en:"Note (optional)", ur:"نوٹ (اختیاری)", ar:"ملاحظة (اختياري)"},
+  notePh:      {en:"e.g. Sabaq was well memorised, MashaAllah", ur:"مثلاً سبق بہت اچھا یاد تھا، ماشاءاللہ", ar:"مثال: كان السبق محفوظاً جيداً، ما شاء الله"},
+  saveCont:    {en:"Save & continue 💾", ur:"محفوظ کر کے آگے 💾", ar:"احفظ وتابع 💾"},
+  logProgress: {en:"📝 Log progress", ur:"📝 پیش رفت درج کریں", ar:"📝 سجّل التقدّم"},
+  history:     {en:"📊 History", ur:"📊 تاریخ", ar:"📊 السجل"},
+  logged:      {en:"✓ Logged", ur:"✓ درج", ar:"✓ مُسجّل"},
+  progSaved:   {en:"Progress saved ✅", ur:"پیش رفت محفوظ ✅", ar:"تم حفظ التقدّم ✅"},
+
+  /* whatsapp */
+  waUpdate:    {en:"📲 WhatsApp update", ur:"📲 واٹس ایپ اپ ڈیٹ", ar:"📲 تحديث واتساب"},
+  copyText:    {en:"📋 Copy text", ur:"📋 متن کاپی کریں", ar:"📋 انسخ النص"},
+  openWa:      {en:"📲 Open WhatsApp", ur:"📲 واٹس ایپ کھولیں", ar:"📲 افتح واتساب"},
+  openWaChat:  {en:"📲 Open WhatsApp chat", ur:"📲 واٹس ایپ چیٹ کھولیں", ar:"📲 افتح محادثة واتساب"},
+  waHint:      {en:"On PC: press <b>Copy text</b>, then paste into WhatsApp Web.", ur:"PC پر: <b>متن کاپی کریں</b> دبائیں، پھر WhatsApp Web میں پیسٹ کریں۔", ar:"على الحاسوب: اضغط <b>انسخ النص</b> ثم الصقه في واتساب ويب."},
+  noNumber:    {en:"(no number saved)", ur:"(نمبر محفوظ نہیں)", ar:"(لا يوجد رقم)"},
+  copied:      {en:"Copied 📋 — paste into WhatsApp", ur:"کاپی ہو گیا 📋 — واٹس ایپ میں پیسٹ کریں", ar:"تم النسخ 📋 — الصقه في واتساب"},
+  popupBlock:  {en:"Popup blocked — use \"Copy text\"", ur:"پاپ اپ بلاک — \"متن کاپی کریں\" استعمال کریں", ar:"تم حظر النافذة — استخدم \"انسخ النص\""},
+  waSalam:     {en:"Assalamu Alaikum 🌙", ur:"السلام علیکم 🌙", ar:"السلام عليكم 🌙"},
+  waLine:      {en:"*{n}* — today's class, {d}", ur:"*{n}* — آج کی کلاس، {d}", ar:"*{n}* — درس اليوم، {d}"},
+
+  /* history */
+  progHistory: {en:"Progress history", ur:"پیش رفت کی تاریخ", ar:"سجل التقدّم"},
+  joinCode:    {en:"Student app join code", ur:"اسٹوڈنٹ ایپ کا جوائن کوڈ", ar:"رمز انضمام تطبيق الطالب"},
+  copyCode:    {en:"📋 Copy code", ur:"📋 کوڈ کاپی کریں", ar:"📋 انسخ الرمز"},
+  codeCopied:  {en:"Code copied 📋", ur:"کوڈ کاپی ہو گیا 📋", ar:"تم نسخ الرمز 📋"},
+  notLinked:   {en:"Student app not linked yet. Give the code above to the child.", ur:"اسٹوڈنٹ ایپ ابھی جڑی نہیں۔ اوپر والا کوڈ بچے کو دیں۔", ar:"لم يُربط تطبيق الطالب بعد. أعطِ الرمز أعلاه للطفل."},
+  stars:       {en:"Stars", ur:"ستارے", ar:"النجوم"},
+  ayatMemo:    {en:"Ayat memorised 🧠", ur:"آیات یاد 🧠", ar:"آيات محفوظة 🧠"},
+  lastRead:    {en:"Last read 📖", ur:"آخری پڑھا 📖", ar:"آخر قراءة 📖"},
+  classes:     {en:"classes", ur:"کلاسیں", ar:"دروس"},
+  noRecord:    {en:"No records yet", ur:"ابھی کوئی ریکارڈ نہیں", ar:"لا توجد سجلات بعد"},
+  noRecordSub: {en:"Log progress from the Today screen", ur:"آج والی اسکرین سے پیش رفت درج کریں", ar:"سجّل التقدّم من شاشة اليوم"},
+  loading:     {en:"Loading… ⏳", ur:"لوڈ ہو رہا ہے… ⏳", ar:"جارٍ التحميل… ⏳"}
+};
+
+let UI_LANG = localStorage.getItem('misbah.uilang') || 'en';
+function T(k,vars){
+  const r=T_DICT[k]; let s=r?(r[UI_LANG]||r.en):k;
+  if(vars) Object.keys(vars).forEach(x=> s=s.split('{'+x+'}').join(vars[x]));
+  return s;
+}
+function setLang(c){
+  UI_LANG=c; localStorage.setItem('misbah.uilang',c);
+  document.documentElement.lang=c; document.documentElement.dir=LANGS[c].dir;
+  applyLang();
+}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(el.hasAttribute('data-i18n-html')) el.innerHTML=T(k); else el.textContent=T(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=> el.placeholder=T(el.getAttribute('data-i18n-ph')));
+  document.querySelectorAll('.lang-pick button').forEach(b=> b.classList.toggle('on', b.dataset.l===UI_LANG));
+  // re-render dynamic parts
+  if(me){ renderStats(); renderToday(); renderStudents(); }
+  document.getElementById('authBtn').textContent = signupMode?T('signup'):T('login');
+  document.getElementById('authSwitch').innerHTML = signupMode?T('haveAccount'):T('noAccount');
+}
+
+/* ============================================================
    ⚙️  SETUP — yahan apne Supabase project ki 2 cheezein daalein
    Supabase Dashboard → Project Settings → Data API / API Keys
    ============================================================ */
-const SUPABASE_URL = "https://gsccibyqomvwmskdqova.supabase.co"; 
+const SUPABASE_URL = "https://gsccibyqomvwmskdqova.supabase.co";  
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzY2NpYnlxb212d21za2Rxb3ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MzQ3MTgsImV4cCI6MjA5OTQxMDcxOH0.d3KKtiAd29d4ZyXo0KWZq9xseMoxU93KKkBkYwokQQw";
 /* ============================================================ */
 
@@ -329,10 +486,8 @@ let signupMode=false;
 function toggleAuthMode(){
   signupMode=!signupMode;
   document.getElementById('nameField').style.display = signupMode?'block':'none';
-  document.getElementById('authBtn').textContent = signupMode?'Sign up':'Login';
-  document.getElementById('authSwitch').innerHTML = signupMode
-    ? `Account hai? <b onclick="toggleAuthMode()">Login karein</b>`
-    : `Naya account? <b onclick="toggleAuthMode()">Sign up karein</b>`;
+  document.getElementById('authBtn').textContent = signupMode?T('signup'):T('login');
+  document.getElementById('authSwitch').innerHTML = signupMode?T('haveAccount'):T('noAccount');
   showAuthErr('');
 }
 function showAuthErr(m){
@@ -346,11 +501,11 @@ function errText(e){
       || (e.status ? ('Error '+e.status) : JSON.stringify(e));
 }
 async function doAuth(){
-  if(!sb){ showAuthErr('Supabase setup nahi hai — URL/key daalein.'); return; }
+  if(!sb){ showAuthErr(T('authSetup')); return; }
   const email=document.getElementById('aEmail').value.trim();
   const pass=document.getElementById('aPass').value;
   const name=document.getElementById('aName').value.trim()||'Ustad';
-  if(!email||pass.length<6){ showAuthErr('Email aur kam az kam 6 letters ka password daalein.'); return; }
+  if(!email||pass.length<6){ showAuthErr(T('authNeed')); return; }
   const btn=document.getElementById('authBtn'); btn.disabled=true; btn.textContent='…';
   showAuthErr('');
   try{
@@ -358,7 +513,7 @@ async function doAuth(){
       const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{name}}});
       if(error) throw error;
       if(!data.session){
-        showAuthErr('✅ Account ban gaya. Ab apne email par confirmation link kholein, phir Login karein.');
+        showAuthErr(T('confirmMail'));
         signupMode=true; toggleAuthMode();     // switch to Login view
         return;
       }
@@ -371,7 +526,7 @@ async function doAuth(){
     console.error('AUTH ERROR:', e);
     showAuthErr(errText(e));
   }finally{
-    btn.disabled=false; btn.textContent=signupMode?'Sign up':'Login';
+    btn.disabled=false; btn.textContent=signupMode?T('signup'):T('login');
   }
 }
 async function doLogout(){
@@ -415,7 +570,7 @@ async function upsertLog(l){
   const row={ student_id:l.studentId, teacher_id:me.id, log_date:l.date,
               present:l.present, level:l.level, data:l.data, note:l.note };
   const {data,error}=await sb.from('logs').upsert(row,{onConflict:'student_id,log_date'}).select().single();
-  if(error){ toast('Save nahi hua 😕'); return null; }
+  if(error){ toast(T('saveFail')); return null; }
   LOGS[l.studentId+'|'+l.date]=data;
   renderStats(); renderToday();
   return data;
@@ -425,7 +580,7 @@ async function upsertLog(l){
    HELPERS
    ============================================================ */
 const AV={qaida:'📖',nazra:'🕋',hifz:'🧠'};
-const LEVEL_LABEL={qaida:'Qaida',nazra:'Nazra',hifz:'Hifz'};
+function levelLabel(l){ return T(l); }
 function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function niceDate(iso){ const [y,m,d]=iso.split('-'); const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return d+' '+mn[+m-1]+' '+y; }
 function esc(s){ return (s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -452,7 +607,7 @@ function renderStats(){
 }
 function renderToday(){
   const wrap=document.getElementById('todayList');
-  if(!STUDENTS.length){ wrap.innerHTML=emptyState('Abhi koi student nahi','Neeche ＋ button se student add karein'); return; }
+  if(!STUDENTS.length){ wrap.innerHTML=emptyState(T('noStudents'),T('noStudentsSub')); return; }
   const t=today(); wrap.innerHTML='';
   STUDENTS.forEach(s=>{
     const l=logFor(s.id,t);
@@ -464,19 +619,19 @@ function renderToday(){
         <div class="stud-av">${AV[s.level]}</div>
         <div class="stud-main">
           <div class="stud-name">${esc(s.name)}</div>
-          <span class="badge ${s.level}">${LEVEL_LABEL[s.level]}</span>
+          <span class="badge ${s.level}">${levelLabel(s.level)}</span>
           ${s.class_time?`<div class="stud-sub">🕐 ${esc(s.class_time)}</div>`:''}
-          ${a?`<div class="stud-sub">📱 App: ⭐${a.stars||0} · 🧠 ${a.hifz_count||0} ayat</div>`:''}
+          ${a?`<div class="stud-sub">📱 ⭐${a.stars||0} · 🧠 ${a.hifz_count||0}</div>`:''}
         </div>
-        ${l?'<div class="done-chip">✓ Logged</div>':''}
+        ${l?`<div class="done-chip">${T('logged')}</div>`:''}
       </div>
       <div class="att">
-        <button class="present ${att==='present'?'on':''}" onclick="quickAtt('${s.id}',true)">Present ✅</button>
-        <button class="absent ${att==='absent'?'on':''}" onclick="quickAtt('${s.id}',false)">Absent ❌</button>
+        <button class="present ${att==='present'?'on':''}" onclick="quickAtt('${s.id}',true)">${T('present')}</button>
+        <button class="absent ${att==='absent'?'on':''}" onclick="quickAtt('${s.id}',false)">${T('absent')}</button>
       </div>
       <div class="row-btns">
-        <button class="btn gold sm" onclick="openLog('${s.id}')">📝 Log progress</button>
-        <button class="btn ghost sm" onclick="openHistory('${s.id}')">📊 History</button>
+        <button class="btn gold sm" onclick="openLog('${s.id}')">${T('logProgress')}</button>
+        <button class="btn ghost sm" onclick="openHistory('${s.id}')">${T('history')}</button>
       </div>`;
     wrap.appendChild(c);
   });
@@ -490,14 +645,14 @@ async function quickAtt(id,present){
 }
 function renderStudents(){
   const wrap=document.getElementById('studentList');
-  if(!STUDENTS.length){ wrap.innerHTML=emptyState('Koi student nahi','Neeche ＋ button se pehla student add karein'); return; }
+  if(!STUDENTS.length){ wrap.innerHTML=emptyState(T('noStudents'),T('noStudentsSub')); return; }
   wrap.innerHTML='';
   STUDENTS.forEach(s=>{
     const c=document.createElement('div'); c.className='card stud-card';
     c.innerHTML=`<div class="stud-av">${AV[s.level]}</div>
       <div class="stud-main">
         <div class="stud-name">${esc(s.name)}</div>
-        <span class="badge ${s.level}">${LEVEL_LABEL[s.level]}</span>
+        <span class="badge ${s.level}">${levelLabel(s.level)}</span>
         <div class="stud-sub">🔑 ${esc(s.join_code)}</div>
       </div>
       <button class="btn ghost sm" onclick="openStudentForm('${s.id}')">✎</button>`;
@@ -514,7 +669,7 @@ let editStudentId=null;
 function openStudentForm(id){
   editStudentId=id||null;
   const s=id?STUDENTS.find(x=>x.id===id):null;
-  document.getElementById('sfTitle').textContent=s?'Edit Student':'New Student';
+  document.getElementById('sfTitle').textContent=s?T('editStudent'):T('newStudent');
   document.getElementById('sfName').value=s?s.name:'';
   document.getElementById('sfTime').value=s?(s.class_time||''):'';
   document.getElementById('sfPhone').value=s?(s.phone||''):'';
@@ -532,18 +687,18 @@ async function saveStudent(){
   let error;
   if(editStudentId){ ({error}=await sb.from('students').update(row).eq('id',editStudentId)); }
   else { row.join_code=makeCode(name); ({error}=await sb.from('students').insert(row)); }
-  if(error){ toast('Save nahi hua 😕'); return; }
+  if(error){ toast(T('saveFail')); return; }
   closeSheet('studentSheet');
   await loadAll();
-  toast(editStudentId?'Student updated':'Student added ✅');
+  toast(editStudentId?T('updated'):T('added'));
 }
 async function deleteStudent(){
   if(!editStudentId) return;
   const {error}=await sb.from('students').delete().eq('id',editStudentId);
-  if(error){ toast('Delete nahi hua 😕'); return; }
+  if(error){ toast(T('saveFail')); return; }
   closeSheet('studentSheet');
   await loadAll(); showTab('students');
-  toast('Student deleted');
+  toast(T('deleted'));
 }
 
 /* ============================================================
@@ -553,27 +708,27 @@ let logStudentId=null;
 function levelFields(level,data){
   data=data||{};
   if(level==='qaida'){
-    return `<div class="field"><label>Aaj tak Qaida (lesson / harf)</label>
-      <input id="f_lesson" value="${esc(data.lesson||'')}" placeholder="e.g. Huroof — Seen tak"/></div>`;
+    return `<div class="field"><label>${T('qaidaField')}</label>
+      <input id="f_lesson" value="${esc(data.lesson||'')}" placeholder="${T('qaidaPh')}"/></div>`;
   }
   if(level==='nazra'){
-    return `<div class="field"><label>Para (Juz)</label>
+    return `<div class="field"><label>${T('para')}</label>
         <input id="f_para" type="number" min="1" max="30" value="${esc(data.para||'')}" placeholder="1–30"/></div>
-      <div class="field"><label>Page / line</label>
-        <input id="f_page" value="${esc(data.page||'')}" placeholder="e.g. Page 7, line 4"/></div>`;
+      <div class="field"><label>${T('pageLine')}</label>
+        <input id="f_page" value="${esc(data.page||'')}" placeholder="${T('pagePh')}"/></div>`;
   }
   return `
-    <div class="field"><label>🆕 Sabaq (naya sabaq)</label>
+    <div class="field"><label>${T('sabaq')}</label>
       <input id="f_sabaq" value="${esc(data.sabaq||'')}" placeholder="e.g. Al-Baqarah 30–33"/></div>
-    <div class="field"><label>🔁 Sabqi (haali revision)</label>
+    <div class="field"><label>${T('sabqi')}</label>
       <input id="f_sabqi" value="${esc(data.sabqi||'')}" placeholder="e.g. Al-Baqarah 1–29"/></div>
-    <div class="field"><label>📚 Manzil (purani revision)</label>
+    <div class="field"><label>${T('manzil')}</label>
       <input id="f_manzil" value="${esc(data.manzil||'')}" placeholder="e.g. Para 30"/></div>
-    <div class="field"><label>Quality</label>
+    <div class="field"><label>${T('quality')}</label>
       <div class="seg" id="logQuality">
-        <button data-v="fluent" class="${(data.quality||'fluent')==='fluent'?'on':''}">Fluent ⭐</button>
-        <button data-v="ok" class="${data.quality==='ok'?'on':''}">Some slips</button>
-        <button data-v="weak" class="${data.quality==='weak'?'on':''}">Weak</button>
+        <button data-v="fluent" class="${(data.quality||'fluent')==='fluent'?'on':''}">${T('fluent')}</button>
+        <button data-v="ok" class="${data.quality==='ok'?'on':''}">${T('someSlips')}</button>
+        <button data-v="weak" class="${data.quality==='weak'?'on':''}">${T('weak')}</button>
       </div></div>`;
 }
 function openLog(id){
@@ -581,7 +736,7 @@ function openLog(id){
   const s=STUDENTS.find(x=>x.id===id);
   const t=today();
   const ex=logFor(id,t);
-  document.getElementById('logWho').textContent=s.name+' · '+LEVEL_LABEL[s.level]+' · '+niceDate(t);
+  document.getElementById('logWho').textContent=s.name+' · '+levelLabel(s.level)+' · '+niceDate(t);
   document.getElementById('logFields').innerHTML=levelFields(s.level, ex?ex.data:{});
   if(s.level==='hifz') segInit('logQuality', (ex&&ex.data.quality)||'fluent');
   segInit('logAtt', ex?(ex.present?'present':'absent'):'present');
@@ -601,7 +756,7 @@ function collectLog(){
 async function saveLog(){
   await upsertLog(collectLog());
   closeSheet('logSheet');
-  toast('Progress saved ✅');
+  toast(T('progSaved'));
 }
 
 /* ---- WhatsApp ---- */
@@ -611,17 +766,17 @@ function waNum(phone){
   return n;
 }
 function buildWaText(l,s){
-  const lines=[`السلام علیکم 🌙`,`*${s.name}* ki aaj ki class — ${niceDate(l.date)}`,``];
-  lines.push(`Haziri: ${l.present?'Present ✅':'Absent ❌'}`);
-  if(s.level==='qaida'){ if(l.data.lesson) lines.push(`Qaida: ${l.data.lesson}`); }
-  else if(s.level==='nazra'){ if(l.data.para) lines.push(`Para: ${l.data.para}`); if(l.data.page) lines.push(`Page: ${l.data.page}`); }
+  const lines=[T('waSalam'), T('waLine',{n:s.name, d:niceDate(l.date)}), ``];
+  lines.push(`${T('attendance')}: ${l.present?T('present'):T('absent')}`);
+  if(s.level==='qaida'){ if(l.data.lesson) lines.push(`${T('qaida')}: ${l.data.lesson}`); }
+  else if(s.level==='nazra'){ if(l.data.para) lines.push(`${T('para')}: ${l.data.para}`); if(l.data.page) lines.push(`${T('pageLine')}: ${l.data.page}`); }
   else{
-    if(l.data.sabaq) lines.push(`🆕 Sabaq: ${l.data.sabaq}`);
-    if(l.data.sabqi) lines.push(`🔁 Sabqi: ${l.data.sabqi}`);
-    if(l.data.manzil) lines.push(`📚 Manzil: ${l.data.manzil}`);
-    if(l.data.quality) lines.push(`Quality: ${({fluent:'Fluent ⭐',ok:'Some slips',weak:'Needs revision'})[l.data.quality]}`);
+    if(l.data.sabaq) lines.push(`${T('sabaq')}: ${l.data.sabaq}`);
+    if(l.data.sabqi) lines.push(`${T('sabqi')}: ${l.data.sabqi}`);
+    if(l.data.manzil) lines.push(`${T('manzil')}: ${l.data.manzil}`);
+    if(l.data.quality) lines.push(`${T('quality')}: ${({fluent:T('fluent'),ok:T('someSlips'),weak:T('needsRev')})[l.data.quality]}`);
   }
-  if(l.note) lines.push(``,`Note: ${l.note}`);
+  if(l.note) lines.push(``,`${T('note')}: ${l.note}`);
   lines.push(``,`— Misbah-ul-Quran`);
   return lines.join('\n');
 }
@@ -631,9 +786,9 @@ async function openWaSheet(){
   const s=STUDENTS.find(x=>x.id===l.studentId);
   await upsertLog(l);
   _waText=buildWaText(l,s); _waNum=waNum(s.phone);
-  document.getElementById('waWho').textContent=s.name+(s.phone?' · 📱 '+s.phone:' · (no number saved)');
+  document.getElementById('waWho').textContent=s.name+(s.phone?' · 📱 '+s.phone:' · '+T('noNumber'));
   document.getElementById('waText').value=_waText;
-  document.getElementById('waOpenBtn').textContent=_waNum?'📲 Open WhatsApp chat':'📲 Open WhatsApp Web';
+  document.getElementById('waOpenBtn').textContent=_waNum?T('openWaChat'):T('openWa');
   openSheet('waSheet');
 }
 function doCopyWa(){
@@ -641,12 +796,12 @@ function doCopyWa(){
   ta.removeAttribute('readonly'); ta.focus(); ta.select(); ta.setSelectionRange(0,99999);
   let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
   ta.setAttribute('readonly','');
-  if(ok) toast('Copied 📋 — WhatsApp mein paste karein');
-  else if(navigator.clipboard) navigator.clipboard.writeText(_waText).then(()=>toast('Copied 📋'),()=>toast('Text select karke copy karein'));
+  if(ok) toast(T('copied'));
+  else if(navigator.clipboard) navigator.clipboard.writeText(_waText).then(()=>toast(T('copied')),()=>{});
 }
 function openWa(){
   const url=_waNum ? 'https://wa.me/'+_waNum+'?text='+encodeURIComponent(_waText) : 'https://web.whatsapp.com/';
-  if(!window.open(url,'_blank')) toast('Popup block hua — "Copy text" use karein');
+  if(!window.open(url,'_blank')) toast(T('popupBlock'));
 }
 
 /* ============================================================
@@ -661,37 +816,37 @@ async function openHistory(id){
 
   document.getElementById('histSummary').innerHTML=`
     <div class="code-box">
-      <div class="cb-l">Student app ka join code</div>
+      <div class="cb-l">${T('joinCode')}</div>
       <div class="cb-c">${esc(s.join_code)}</div>
-      <button onclick="copyCode('${esc(s.join_code)}')">📋 Copy code</button>
+      <button onclick="copyCode('${esc(s.join_code)}')">${T('copyCode')}</button>
     </div>
     ${a?`<div class="act-cards">
-        <div class="act"><b>⭐ ${a.stars||0}</b><span>Stars</span></div>
-        <div class="act"><b>${a.hifz_count||0}</b><span>Ayat yaad 🧠</span></div>
-        <div class="act"><b>${a.last_read?('S'+a.last_read.surah):'—'}</b><span>Last read 📖</span></div>
+        <div class="act"><b>⭐ ${a.stars||0}</b><span>${T('stars')}</span></div>
+        <div class="act"><b>${a.hifz_count||0}</b><span>${T('ayatMemo')}</span></div>
+        <div class="act"><b>${a.last_read?('S'+a.last_read.surah):'—'}</b><span>${T('lastRead')}</span></div>
       </div>`
      :`<div class="card" style="text-align:center;color:var(--ink-soft);font-weight:700;font-size:.85rem">
-        Student app abhi link nahi hui. Upar wala code bachche ko dein.</div>`}
-    <div class="card"><b style="color:var(--emerald)">${LEVEL_LABEL[s.level]}</b>
-      &nbsp;·&nbsp; ${(logs||[]).length} classes &nbsp;·&nbsp; ${present} present
+        ${T('notLinked')}</div>`}
+    <div class="card"><b style="color:var(--emerald)">${levelLabel(s.level)}</b>
+      &nbsp;·&nbsp; ${(logs||[]).length} ${T('classes')} &nbsp;·&nbsp; ${present} ${T('present')}
       ${s.phone?`<div class="stud-sub" style="margin-top:6px">📱 ${esc(s.phone)}</div>`:''}</div>`;
 
   const wrap=document.getElementById('histList');
-  if(!logs||!logs.length){ wrap.innerHTML=emptyState('Abhi koi record nahi','Today screen se progress log karein'); }
+  if(!logs||!logs.length){ wrap.innerHTML=emptyState(T('noRecord'),T('noRecordSub')); }
   else{
     wrap.innerHTML='';
     logs.forEach(l=>{
       const d=l.data||{}; const det=[];
-      if(l.level==='qaida'&&d.lesson) det.push(`<b>Qaida:</b> ${esc(d.lesson)}`);
-      if(l.level==='nazra'){ if(d.para) det.push(`<b>Para:</b> ${esc(d.para)}`); if(d.page) det.push(`<b>Page:</b> ${esc(d.page)}`); }
+      if(l.level==='qaida'&&d.lesson) det.push(`<b>${T('qaida')}:</b> ${esc(d.lesson)}`);
+      if(l.level==='nazra'){ if(d.para) det.push(`<b>${T('para')}:</b> ${esc(d.para)}`); if(d.page) det.push(`<b>${T('pageLine')}:</b> ${esc(d.page)}`); }
       if(l.level==='hifz'){
-        if(d.sabaq) det.push(`<b>Sabaq:</b> ${esc(d.sabaq)}`);
-        if(d.sabqi) det.push(`<b>Sabqi:</b> ${esc(d.sabqi)}`);
-        if(d.manzil) det.push(`<b>Manzil:</b> ${esc(d.manzil)}`);
+        if(d.sabaq) det.push(`<b>${T('sabaq')}:</b> ${esc(d.sabaq)}`);
+        if(d.sabqi) det.push(`<b>${T('sabqi')}:</b> ${esc(d.sabqi)}`);
+        if(d.manzil) det.push(`<b>${T('manzil')}:</b> ${esc(d.manzil)}`);
       }
-      if(l.note) det.push(`<b>Note:</b> ${esc(l.note)}`);
+      if(l.note) det.push(`<b>${T('note')}:</b> ${esc(l.note)}`);
       const el=document.createElement('div'); el.className='log';
-      el.innerHTML=`<div class="ld">${niceDate(l.log_date)} <span class="pill ${l.present?'p':'a'}">${l.present?'Present':'Absent'}</span></div>
+      el.innerHTML=`<div class="ld">${niceDate(l.log_date)} <span class="pill ${l.present?'p':'a'}">${l.present?T('present'):T('absent')}</span></div>
         ${det.map(x=>`<div class="lline">${x}</div>`).join('')}`;
       wrap.appendChild(el);
     });
@@ -699,7 +854,7 @@ async function openHistory(id){
   showScreen('history');
 }
 function copyCode(code){
-  if(navigator.clipboard) navigator.clipboard.writeText(code).then(()=>toast('Code copied 📋'),()=>{});
+  if(navigator.clipboard) navigator.clipboard.writeText(code).then(()=>toast(T('codeCopied')),()=>{});
   else toast(code);
 }
 
@@ -729,6 +884,7 @@ function closeSheet(id){ document.getElementById(id).classList.remove('show'); }
    BOOT — auto-login if session exists
    ============================================================ */
 (async function boot(){
+  setLang(UI_LANG);
   if(!sb) return;
   const {data:{session}}=await sb.auth.getSession();
   if(session) await afterLogin();
